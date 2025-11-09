@@ -63,7 +63,7 @@ resource "aws_route53_record" "jenkins" {
     zone_name = "jenkins.${var.zone_name}"
     type = "A"
     ttl = "1"
-    records = {aws_instance.jenkins.public_ip}
+    records = [aws_instance.jenkins.public_ip]
     allow_overwrite = true
 }
 
@@ -72,6 +72,6 @@ resource "aws_route53_record" "jenkins-agent" {
     zone_name = "${var.zone_name}"
     type = "A"
     ttl = "1"
-    records = {aws_instance.jenkins-agent.private_ip}
+    records = [aws_instance.jenkins-agent.private_ip]
     allow_overwrite = true
 }
