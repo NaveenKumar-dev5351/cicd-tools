@@ -5,7 +5,7 @@ resource "aws_instance" "jenkins" {
 
     root_block_device {
         volume_size = 50
-        volume_type = gp3
+        volume_type = "gp3"
     }
 
     user_data = file("jenkins.sh")
@@ -24,10 +24,10 @@ resource "aws_instance" "jenkins-agent" {
 
     root_block_device {
         volume_size = 50
-        volume_type = gp3
+        volume_type = "gp3"
     }
 
-    user_date = file("jenkins-agent.sh")
+    user_data = file("jenkins-agent.sh")
     tags = merge(
         local.common_tags,
         {
@@ -47,7 +47,15 @@ resource "aws_security_group" "main" {
         to_port   = 0 
         protocol  = "-1"
         cidr_blocks = ["0.0.0.0/0"]
-        ipv6_cidr_blocks = ["0.0.0.0/0"]
+        ipv6_cidr_blocks = ["::/0"]
+    }
+
+    egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
     }
     
     tags = merge(
@@ -60,7 +68,7 @@ resource "aws_security_group" "main" {
 
 resource "aws_route53_record" "jenkins" {
     zone_id = "${var.zone_id}"
-    zone_name = "jenkins.${var.zone_name}"
+    name = "jenkins.${var.zone_name}"
     type = "A"
     ttl = "1"
     records = [aws_instance.jenkins.public_ip]
@@ -69,7 +77,7 @@ resource "aws_route53_record" "jenkins" {
 
 resource "aws_route53_record" "jenkins-agent" {
     zone_id = "${var.zone_id}"
-    zone_name = "${var.zone_name}"
+    name = "${var.zone_name}"
     type = "A"
     ttl = "1"
     records = [aws_instance.jenkins-agent.private_ip]
